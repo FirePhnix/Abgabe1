@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}
+    Task Item
+{% endblock %}
+
+{% block content %}
+<br>
+{% if items[6] %}
+<h1 style="padding-left: 2%;"> Erledigt</h1>
+{% endif %}
+<table class="table table-striped table-dark">
+  <thead>
+    <tr>
+      <th scope="col">Column</th>
+      <th scope="col">Entry</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">Due date</th>
+      <td>{{ items[1] }}</td>
+    </tr>
+    <tr>
+      <th scope="row">Priority</th>
+      <td>{{ items[2] }}</td>
+    </tr>
+    <tr>
+      <th scope="row">Username</th>
+      <td>{{ items[3] }}</td>
+    </tr>
+    <tr>
+      <th scope="row">Title</th>
+      <td>{{ items[4] }}</td>
+    </tr>
+    <tr>
+      <th scope="row">Description</th>
+      <td>{{ items[5] | safe }}</td>
+    </tr>
+    {% if not items[6] %}
+    <tr>
+      <th scope="row">Actions</th>
+      <td>
+        <form method="POST" action="/task_done/{{ items[0] }}">
+          <button type="submit" class="btn btn-success" style="width: 100px;">Mark as Done</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr>
+      <th scope="row">Actions</th>
+      <td>
+        <form method="POST" action="/task_delete_confirmation/{{ items[0] }}">
+          <button type="submit" class="btn btn-danger" style="width: 100px;">Delete Task</button>
+        </form>
+      </td>
+    </tr>
+    {% endif %}
+  </tbody>
+</table>
+<a class="btn btn-dark" href="{{ url_for('tasks') }}">Back to Tasks</a>
+{% endblock %}

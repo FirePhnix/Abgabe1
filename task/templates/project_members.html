@@ -1,0 +1,17 @@
+<!-- templates/project_members.html -->
+
+{% extends 'base.html' %}
+{% block title %}
+Project Members
+{% endblock %}
+{% block content %}
+<body>
+    <h1>Project Members - {{ project_name }}</h1>
+    <ul>
+        {% for member in members %}
+            <li>{{ member }}</li>
+        {% endfor %}
+    </ul>
+    <p><a href="/projects">Back to Projects</a></p>
+</body>
+{% endblock %}

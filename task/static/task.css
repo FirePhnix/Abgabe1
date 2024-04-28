@@ -1,0 +1,20 @@
+.completed-task .show, .completed-task {
+    color: grey; /* Textfarbe für erledigte Tasks */
+}
+
+.completed-task:hover .show{
+    cursor: pointer; /* Mauszeiger ändern */  
+    display: none;  
+}
+
+.completed-task:hover .hide{
+    cursor: pointer; /* Mauszeiger ändern */  
+    display: table-cell;  
+    text-align: center;
+    font-weight: bold;
+    font-size: larger;
+}
+
+.hide {
+    display: none;
+}

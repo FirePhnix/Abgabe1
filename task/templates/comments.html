@@ -1,0 +1,25 @@
+<!-- templates/comments.html -->
+
+{% extends 'base.html' %}
+{% block title %}
+Comments
+{% endblock %}
+{% block content %}
+<body>
+    <h1>Comments</h1>
+    <form action="/comments" method="POST">
+        <label for="user_name">Your Name:</label><br>
+        <input type="text" id="user_name" name="user_name"><br>
+        <label for="comment">Your Comment:</label><br>
+        <textarea id="comment" name="comment" rows="4" cols="50"></textarea><br><br>
+        <input type="submit" value="Submit">
+    </form>
+
+    <h2>Previous Comments:</h2>
+    <ul>
+        {% for comment in comments %}
+            <li><strong>{{ comment.user_name }}</strong>: {{ comment.comment }}</li>
+        {% endfor %}
+    </ul>
+</body>
+{% endblock %}
