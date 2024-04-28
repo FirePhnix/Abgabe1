@@ -153,7 +153,7 @@ def task_creation():
         title = request.form.get('Title')
         description = request.form.get('Description')
         
-        query_insert = f"insert into tasks (due_date, priority, username, title, description) values ('{due_date}', '{priority}', '{username}', '{title}', '{description}')"
+        query_insert = f"insert into tasks (due_date, priority, username, title, description) values ({due_date}, '{priority}', '{username}', '{title}', '{description}')"
         print(query_insert)
         db.session.execute(text(query_insert))
         db.session.commit()
@@ -211,7 +211,7 @@ def task_done(task_id):
 @app.route('/task_delete/<int:task_id>', methods=['POST'])
 def task_delete(task_id):
     query = f"DELETE FROM tasks WHERE id = {task_id}"
-    db.session.execute(query)
+    db.session.execute(text(query))
     db.session.commit()
     return redirect(url_for('dashboard'))
 

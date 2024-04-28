@@ -1,19 +1,19 @@
 {% extends 'base.html' %}
 
 {% block title %}
-Login Page
+Task Creation
 {% endblock %}
 
 {% block content %}
 <body class="text-center">
 <div class="container">
-<form method="POST" class="form-register" action="/ticket_entry" style="color:black">
+<form method="POST" class="form-register" action="/task_creation" style="color:black">
 
     <br>
-    <img class="mb-4" src="static/satellit.png" alt="" style="width:200px;">
+    <img class="mb-4" src="static/Panda.png" alt="" style="width:200px;">
     <br>
     <h1 class="h3 mb-3 font-weight-normal">
-        Please Enter New Ticket
+        Please Enter New Task
     </h1>
 
     <label for="Priority" class="form-label">Priority</label>
@@ -22,6 +22,8 @@ Login Page
         <option value="1">1</option>
         <option value="2">2</option>
         <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
     </select>
     <label for="Username" class="form-label">Username</label>
     <input type="text" id="Username" name="Username" class="form-control">
