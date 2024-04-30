@@ -153,7 +153,7 @@ def task_creation():
         title = request.form.get('Title')
         description = request.form.get('Description')
         
-        query_insert = f"insert into tasks (due_date, priority, username, title, description) values ({due_date}, '{priority}', '{username}', '{title}', '{description}')"
+        query_insert = f"insert into tasks (due_date, priority, username, title, description) values ('{due_date}', '{priority}', '{username}', '{title}', '{description}')"
         print(query_insert)
         db.session.execute(text(query_insert))
         db.session.commit()
