@@ -35,7 +35,7 @@ def login():
         user = result.fetchall()
         #print("debug1")
         if not user:
-            #flash(f"Try again", category='warning')
+            flash(f"Try again", category='warning')
             #print(user)
             return render_template('login.html', cookie=None)
         #print("debug3")
