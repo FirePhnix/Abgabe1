@@ -1,6 +1,6 @@
 # app.py
 from task import app, db
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from sqlalchemy import text
 
 @app.route('/')
@@ -36,13 +36,13 @@ def login():
         #print("debug1")
         if not user:
             #flash(f"Try again", category='warning')
-            #print("debug2")
+            #print(user)
             return render_template('login.html', cookie=None)
         #print("debug3")
-        #flash(f"'{user}', you are logged in ", category='success')
-        print("debug1")
+        flash(f"'{user}', you are logged in ", category='success')
+        print(user)
 
-        resp = redirect('/dashboard')
+        resp = redirect('/tasks')
         print("debug2")
         resp.set_cookie('name', username)
         print("<-login(), go to tasks")
