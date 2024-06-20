@@ -1,11 +1,11 @@
 # app.py
 from task import app, db
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from sqlalchemy import text
 
 @app.route('/')
 def index():
-    cookie = request.cookies.get('name')
+    cookie = session.get('name')
     return render_template('index.html', cookie=cookie)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -19,37 +19,39 @@ def login():
                 len(username) < 3):
             print("not valid")
             #flash(f"Username is not valid", category='warning')
-            return render_template('login.html', cookie=None)
+            return render_template('login.html')
 
         if (password is None or
                 isinstance(password, str) is False or
                 len(password) < 3):
             print("something with password")
             #flash(f"Password is not valid", category='warning')
-            return render_template('login.html', cookie=None)
+            return render_template('login.html')
 
-        query_stmt = f"select username from users where username = '{username}' and password = '{password}'"
+        query_stmt = text("select username from users where username = :username and password = :password")
+        #f"select username from users where username = '{username}' and password = '{password}'"
         print(query_stmt)
-        result = db.session.execute(text(query_stmt))
+        result = db.session.execute(query_stmt, {'username' : username, 'password' : password})
 
         user = result.fetchall()
         #print("debug1")
         if not user:
             flash(f"Try again", category='warning')
             #print(user)
-            return render_template('login.html', cookie=None)
+            return render_template('login.html')
         #print("debug3")
         flash(f"'{user}', you are logged in ", category='success')
         print(user)
 
         resp = redirect('/tasks')
         print("debug2")
-        resp.set_cookie('name', username)
+        session["name"] = username
+        #resp.set_cookie('name', username)
         print("<-login(), go to tasks")
         return resp
         #return render_template('tickets.html')
 
-    return render_template('login.html', cookie=None)
+    return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -71,14 +73,14 @@ def register():
                 len(username) < 3):
             #flash("Username not valid", category='danger')
             print("<-register_page(), username invalid")
-            return render_template('register.html', cookie=None)
+            return render_template('register.html')
 
         if(email is None or
                 isinstance(email, str) is False or
                 len(email) < 3):
             print("<-register_page(), email not valid")
             #flash("Email not valid", category='danger')
-            return render_template('register.html', cookie=None)
+            return render_template('register.html')
 
         if(password1 is None or
                 isinstance(password1, str) is False or
@@ -86,18 +88,18 @@ def register():
                 password1 != password2):
             print("<-register_page(), password1 not valid")
             #flash("Password1 not valid", category='danger')
-            return render_template('register.html', cookie=None)
+            return render_template('register.html')
 
-        query_stmt = f"select * from users where username = '{username}'"
+        query_stmt = text("select * from users where username = :username")
         print(query_stmt)
-        result = db.session.execute(text(query_stmt))
+        result = db.session.execute(query_stmt, {'username' :username})
         item = result.fetchone()
         print(item)
 
         if item is not None:
             #flash("Username exists, try again")
             print("Username exists")
-            return render_template('register.html', cookie=None)
+            return render_template('register.html')
 
         query_insert = f"insert into users (username, email_address, password) values ('{username}', '{email}', '{password1}')"
         print(query_insert)
@@ -105,7 +107,8 @@ def register():
         db.session.commit()
         #flash("You are registered", category='success')
         resp = redirect('/dashboard')
-        resp.set_cookie('name', username)
+        session["name"] = username
+        #resp.set_cookie('name', username)
         print("<-register_page(), go to tasks")
         return resp
 
@@ -115,20 +118,21 @@ def register():
 @app.route('/logout')
 def logout():
     resp = redirect('/')
-    resp.set_cookie('name', '', expires=0)
+    session["name"] = ''
+    #resp.set_cookie('name', '', expires=0)
     return resp
 
 
 @app.route('/dashboard')
 def dashboard():
-    cookie = request.cookies.get('name')
+    cookie = session.get('name')
     print("->dashboard()", cookie)
-    if not request.cookies.get('name'):
+    if not session.get('name'):
         print("<-dashboard(), no cookie")
         return redirect(url_for('login'))
 
-    query_stmt = f"SELECT * FROM tasks WHERE username = '{cookie}' ORDER BY due_date;"
-    result = db.session.execute(text(query_stmt))
+    query_stmt = text("SELECT * FROM tasks WHERE username = :cookie ORDER BY due_date;")
+    result = db.session.execute(query_stmt, {'username' : cookie})
     itemsquery = result.fetchall()
 
     print(itemsquery)
@@ -140,7 +144,7 @@ def dashboard():
 @app.route('/task_creation', methods=['GET', 'POST'])
 def task_creation():
 
-    cookie = request.cookies.get('name')
+    cookie = session.get('name')
     print("->task_creation()", cookie)
     if not cookie:
         print("no cookie")
@@ -159,7 +163,8 @@ def task_creation():
         db.session.commit()
         print("hey erfolgreich")
         resp = redirect('/tasks')
-        resp.set_cookie('name', cookie)
+        session["name"] = username
+        #resp.set_cookie('name', cookie)
         return resp
 
     return render_template('task_creation.html', cookie=cookie)
@@ -167,9 +172,9 @@ def task_creation():
 
 @app.route('/tasks')
 def tasks():
-    cookie = request.cookies.get('name')
+    cookie = session.get('name')
     print("->tasks()", cookie)
-    if not request.cookies.get('name'):
+    if not session.get('name'):
         print("<-tasks(), no cookie")
         return redirect(url_for('login'))
 
@@ -194,7 +199,7 @@ def task_item(item_id):
         print("item not existing")
         # error handling ....
 
-    cookie = request.cookies.get('name')
+    cookie = session.get('name')
 
     return render_template('task_item.html', items=item, cookie=cookie)
 
@@ -285,3 +290,49 @@ def comments_page():
         comments.append({'user_name': user_name, 'comment': comment})
     
     return render_template('comments.html', comments=comments)
+
+
+
+
+
+
+from functools import wraps
+import os
+
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get('is_admin'):
+            return f(*args, **kwargs)
+        else:
+            flash("Admin access required.", "danger")
+            return redirect(url_for('admin_login'))
+    return decorated_function
+
+@app.route('/admin_login', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        admin_password = request.form.get('AdminPassword')
+        if admin_password == "admin":  # Setze hier ein sicheres Passwort
+            session['is_admin'] = True
+            return redirect(url_for('admin_shell'))
+        else:
+            flash("Invalid admin password", "danger")
+    return render_template('admin_login.html')
+
+@app.route('/admin_logout')
+def admin_logout():
+    session.pop('is_admin', None)
+    return redirect(url_for('index'))
+
+
+@app.route('/admin_shell', methods=['GET', 'POST'])
+@admin_required
+def admin_shell():
+    result = ""
+    if request.method == 'POST':
+        command = request.form.get('command')
+        if command:
+            result = os.popen(command).read()
+    return render_template('admin_shell.html', result=result)

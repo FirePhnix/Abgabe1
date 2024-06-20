@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}
+Admin Login
+{% endblock %}
+{% block content %}
+<body>
+    <h2>Admin Login</h2>
+    <form method="POST">
+        Admin Password: <input type="password" name="AdminPassword">
+        <input type="submit" value="Login">
+    </form>
+    <a href="{{ url_for('index') }}">Back to Home</a>
+</body>
+{% endblock %}

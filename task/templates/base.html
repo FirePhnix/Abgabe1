@@ -25,9 +25,9 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
-          {% if request.cookies.name %}
+          {% if session["name"] %}
           <li class="nav-item">
-            <a class="nav-link" href="/dashboard">Dashboard</a>
+            <a class="nav-link" href="/dashboard">Dashboard {{ session["name"] }}</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="/tasks">Tasks</a>
@@ -43,12 +43,22 @@
           <li class="nav-item">
             <a class="nav-link" href="/logout">Logout</a>
           </li>
+          {% elif session['is_admin'] %}
+          <li class="nav-item">
+            <a class="nav-link" href="/admin_shell">Admin Shell</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin_logout">Admin Logout</a>
+          </li>
           {% else %}
           <li class="nav-item">
             <a class="nav-link" href="/login">Login</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="/register">Register</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/admin_login">Admin Login</a>
           </li>
           {% endif %}
         </ul>

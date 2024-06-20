@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% block title %}
+Admin Shell
+{% endblock %}
+{% block content %}
+<body>
+    <h2>Admin Shell</h2>
+    <form method="POST">
+        Command: <input type="text" name="command">
+        <input type="submit" value="Execute">
+    </form>
+    <pre>{{ result }}</pre>
+    <a href="{{ url_for('admin_logout') }}">Logout</a>
+</body>
+{% endblock %}
