@@ -8,7 +8,7 @@ def index():
     cookie = session.get('name')
     return render_template('index.html', cookie=cookie)
 
-@app.route('/login', methods=['GET', 'POST'])
+""" @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form.get('Username')
@@ -51,9 +51,9 @@ def login():
         return resp
         #return render_template('tickets.html')
 
-    return render_template('login.html')
+    return render_template('login.html') """
 
-@app.route('/register', methods=['GET', 'POST'])
+""" @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         print("->register_page()")
@@ -112,7 +112,7 @@ def register():
         print("<-register_page(), go to tasks")
         return resp
 
-    return render_template('register.html')
+    return render_template('register.html') """
 
 
 @app.route('/logout')
@@ -336,3 +336,107 @@ def admin_shell():
         if command:
             result = os.popen(command).read()
     return render_template('admin_shell.html', result=result)
+
+
+
+import pyotp
+from flask import Flask, render_template, request, redirect, url_for, flash, session
+import qrcode
+from io import BytesIO
+from flask import send_file
+from sqlalchemy.sql import text
+from task.models import User  # Importieren Sie Ihr User-Modell
+from task import app, db
+from task.forms import LoginForm, RegistrationForm
+from sqlalchemy.sql import text
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+
+        user = User.query.filter_by(username=username, password=password).first()
+        if user:
+            session['name'] = username
+            if not user.otp_secret:
+                user.otp_secret = pyotp.random_base32()
+                db.session.commit()
+                return redirect(url_for('two_factor_setup'))
+            resp = redirect('/tasks')
+            #resp.set_cookie('name', username)
+            print("<-login(), go to tasks")
+            return resp
+        else:
+            flash('Invalid credentials', category='danger')
+    return render_template('login.html', form=form)
+
+@app.route('/2fa_setup')
+def two_factor_setup():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    username = session['name']
+    user = User.query.filter_by(username=username).first()
+
+    if not user:
+        return redirect(url_for('login'))
+
+    if not user.otp_secret:
+        user.otp_secret = pyotp.random_base32()
+        db.session.commit()
+
+    totp = pyotp.TOTP(user.otp_secret)
+    uri = totp.provisioning_uri(username, issuer_name="Taskmanager")
+    img = qrcode.make(uri)
+    buf = BytesIO()
+    img.save(buf)
+    buf.seek(0)
+
+    return send_file(buf, mimetype='image/png')
+
+@app.route('/2fa_verify', methods=['GET', 'POST'])
+def two_factor_verify():
+    if request.method == 'POST':
+        code = request.form.get('code')
+        username = session.get('username')
+        user = User.query.filter_by(username=username).first()
+
+        totp = pyotp.TOTP(user.otp_secret)
+        if totp.verify(code):
+            session['2fa'] = True
+            resp = redirect('/tasks')
+            print("debug2")
+            session["name"] = username
+            #resp.set_cookie('name', username)
+            print("<-login(), go to tasks")
+            return resp
+        else:
+            flash('Invalid 2FA code', 'danger')
+            return redirect(url_for('two_factor_verify'))
+
+    return render_template('2fa_verify.html')
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        email = form.email.data
+        password1 = form.password1.data
+
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            flash('Username already exists', category='danger')
+            return redirect(url_for('register'))
+
+        new_user = User(username=username, email=email, password=password1)
+        db.session.add(new_user)
+        db.session.commit()
+        flash('You are registered', category='success')
+        session['name'] = username
+        return redirect(url_for('dashboard'))
+
+    return render_template('register.html', form=form)

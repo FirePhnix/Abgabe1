@@ -7,7 +7,8 @@ Login
 {% block content %}
 <body class="text-center">
     <div class="container">
-        <form method="POST" class="form-register" action="/login" style="color:black">
+        <form method="POST" class="form-register" action="{{ url_for('login') }}" style="color:black">
+            {{ form.hidden_tag() }}
             <br>
             <img class="mb-4" src="static/Panda.png" alt="" style="width:200px;">
             <br>
@@ -15,13 +16,17 @@ Login
                 Please Login
             </h1>
 
-            <label for="Username" class="form-label">Username</label>
-            <input type="text" id="Username" name="Username" class="form-control">
-            <label for="Password" class="form-label">Password</label>
-            <input type="password" id="Password" name="Password" class="form-control" aria-describedby="passwordHelpBlock">
+            <div class="form-group">
+                {{ form.username.label(class="form-label") }}
+                {{ form.username(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.password.label(class="form-label") }}
+                {{ form.password(class="form-control") }}
+            </div>
 
             <br>
-            <button type="submit" class="btn btn-dark">Login</button>
+            <button type="submit" class="btn btn-dark">{{ form.submit.label.text }}</button>
 
         </form> 
         <p>Don't have an account? <a href="/register">Register here</a></p>

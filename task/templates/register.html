@@ -7,8 +7,8 @@ Register
 {% block content %}
 <body class="text-center">
 <div class="container">
-<form method="POST" class="form-register" action="/register" style="color:black">
-
+<form method="POST" class="form-register" action="{{ url_for('register') }}" style="color:black">
+    {{ form.hidden_tag() }}
     <br>
     <img class="mb-4" src="static/Panda.png" alt="" style="width:200px;">
     <br>
@@ -16,20 +16,27 @@ Register
         Please Register
     </h1>
 
-    <label for="Username" class="form-label">Username</label>
-    <input type="text" id="Username" name="Username" class="form-control">
-    <label for="Email" class="form-label">Email</label>
-    <input type="text" id="Email" name="Email" class="form-control">
-    <label for="Password1" class="form-label">Password</label>
-    <input type="password" id="Password1"  name="Password1" class="form-control" aria-describedby="passwordHelpBlock">
-    <label for="Password2" class="form-label">Confirm Password</label>
-    <input type="password" id="Password2"  name="Password2" class="form-control" aria-describedby="passwordHelpBlock">
+    <div class="form-group">
+        {{ form.username.label(class="form-label") }}
+        {{ form.username(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.email.label(class="form-label") }}
+        {{ form.email(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.password1.label(class="form-label") }}
+        {{ form.password1(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.password2.label(class="form-label") }}
+        {{ form.password2(class="form-control") }}
+    </div>
 
     <br>
-    <button type="submit" class="btn btn-dark">Register</button>
+    <button type="submit" class="btn btn-dark">{{ form.submit.label.text }}</button>
 
 </form>
 </div>
 </body>
-
 {% endblock %}
